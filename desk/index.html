@@ -555,6 +555,225 @@
   .foot strong{ color:var(--ink-2); font-weight:600; }
   .foot p{ margin:0 0 8px; max-width:72ch; }
 
+  /* ---------- today + events ---------- */
+  .duo{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+    gap:16px;
+    margin-top:16px;
+  }
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:14px 18px 12px;
+    min-width:0;
+  }
+  .panel-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:4px 12px;
+    flex-wrap:wrap;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--rule-strong);
+  }
+  .panel-head h2{ font-size:16px; font-weight:800; }
+  .panel-meta{ font-size:11.5px; color:var(--ink-3); }
+  .todo, .events{ list-style:none; margin:0; padding:0; }
+  .todo li{ border-bottom:1px solid var(--rule); }
+  .todo li:last-child, .events li:last-child{ border-bottom:none; }
+  .todo label{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    padding:9px 0;
+    cursor:pointer;
+    font-size:14px;
+  }
+  .todo input{ margin-top:4px; width:16px; height:16px; flex:0 0 auto; accent-color:var(--navy-2); }
+  .todo .t-text{ flex:1 1 auto; min-width:0; }
+  .todo .t-when{ font-size:11.5px; color:var(--ink-3); display:block; }
+  .todo li[data-done="1"] .t-text{ color:var(--ink-3); text-decoration:line-through; }
+  .events li{
+    display:grid;
+    grid-template-columns:58px 1fr auto;
+    gap:0 10px;
+    align-items:baseline;
+    padding:8px 0;
+    border-bottom:1px solid var(--rule);
+  }
+  .ev-date{ font-size:13px; font-weight:600; color:var(--ink-2); }
+  .ev-title{ font-size:13.5px; min-width:0; }
+  .ev-kind{ font-size:11px; color:var(--ink-3); display:block; }
+  .dday{
+    font-family:"IBM Plex Mono", ui-monospace, monospace;
+    font-size:11px;
+    font-weight:600;
+    padding:1px 6px;
+    border-radius:3px;
+    background:var(--flat-soft);
+    color:var(--flat);
+    white-space:nowrap;
+  }
+  .dday[data-soon="1"]{ background:var(--up-soft); color:var(--up); }
+
+  /* ---------- holdings ---------- */
+  .tbl-wrap{ overflow-x:auto; margin-top:12px; }
+  .tbl{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13.5px;
+    min-width:640px;
+  }
+  .tbl th{
+    font-size:11px;
+    letter-spacing:0.05em;
+    color:var(--ink-3);
+    font-weight:500;
+    text-align:right;
+    padding:6px 8px;
+    border-bottom:1px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  .tbl th:first-child, .tbl td:first-child{ text-align:left; padding-left:0; }
+  .tbl td{
+    padding:9px 8px;
+    border-bottom:1px solid var(--rule);
+    text-align:right;
+    font-family:"IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+  }
+  .tbl td.name{ font-family:inherit; white-space:normal; }
+  .tbl td.name b{ font-weight:600; }
+  .tbl td.name small{ display:block; font-size:11px; color:var(--ink-3); }
+  .tbl .sub{ display:block; font-size:11px; color:var(--ink-3); }
+  .state{
+    display:inline-block;
+    font-family:"IBM Plex Sans KR", sans-serif;
+    font-size:11px;
+    font-weight:600;
+    padding:1px 7px;
+    border-radius:3px;
+    border:1px solid var(--flat-line);
+    background:var(--flat-soft);
+    color:var(--flat);
+  }
+  .state[data-s="near"]{ color:var(--down); background:var(--down-soft); border-color:var(--down-line); }
+  .state[data-s="stop"]{ color:var(--surface); background:var(--down); border-color:var(--down); }
+  .state[data-s="take"]{ color:var(--up); background:var(--up-soft); border-color:var(--up-line); }
+  .mini{
+    font:inherit;
+    font-family:"IBM Plex Sans KR", sans-serif;
+    font-size:12px;
+    padding:3px 9px;
+    border-radius:3px;
+    border:1px solid var(--rule-strong);
+    background:var(--surface);
+    color:var(--ink-2);
+    cursor:pointer;
+  }
+  .mini:hover{ border-color:var(--ink-3); color:var(--ink); }
+  .mini.solid{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+  .mini:disabled{ opacity:.5; cursor:default; }
+  .hold-sum{
+    display:flex;
+    gap:6px 22px;
+    flex-wrap:wrap;
+    margin-top:12px;
+    font-size:13px;
+    color:var(--ink-2);
+  }
+  .hold-sum b{ font-weight:600; color:var(--ink); }
+
+  .form{
+    margin-top:14px;
+    background:var(--surface);
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:14px 16px;
+  }
+  .form-title{ font-size:13.5px; font-weight:600; margin:0 0 10px; }
+  .fields{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));
+    gap:10px 12px;
+  }
+  .field{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+  .field.wide{ grid-column:1 / -1; }
+  .field label{ font-size:11.5px; color:var(--ink-3); }
+  .field input, .field select{
+    font:inherit;
+    font-size:14px;
+    padding:6px 8px;
+    border:1px solid var(--rule-strong);
+    border-radius:3px;
+    background:var(--surface-2);
+    color:var(--ink);
+    min-width:0;
+    width:100%;
+  }
+  .field input.num{ font-family:"IBM Plex Mono", ui-monospace, monospace; }
+  .check{ display:flex; gap:8px; align-items:center; font-size:13px; color:var(--ink-2); }
+  .form-foot{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:12px; }
+  .form-msg{ font-size:12.5px; color:var(--ink-2); }
+  .close-row td{ background:var(--surface-2); }
+  .close-form{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:flex-end;
+    font-family:"IBM Plex Sans KR", sans-serif;
+    font-size:12.5px;
+    white-space:normal;
+  }
+  .close-form input, .close-form select{
+    font:inherit;
+    font-size:13px;
+    padding:4px 7px;
+    border:1px solid var(--rule-strong);
+    border-radius:3px;
+    background:var(--surface);
+    color:var(--ink);
+    width:120px;
+    max-width:100%;
+  }
+
+  /* ---------- review ---------- */
+  .tiles{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+    border:1px solid var(--rule);
+    border-radius:4px;
+    background:var(--surface);
+    overflow:hidden;
+    margin-top:14px;
+  }
+  .tile{ padding:13px 15px; border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); }
+  .tile-k{ font-size:11px; letter-spacing:0.07em; color:var(--ink-3); font-weight:500; }
+  .tile-v{ font-size:21px; font-weight:600; margin-top:3px; }
+  .tile-s{ font-size:11.5px; color:var(--ink-3); margin-top:2px; line-height:1.4; }
+  .subhead{ font-family:inherit; font-size:14px; font-weight:600; margin:22px 0 0; }
+  .since{ font-size:12px; color:var(--ink-3); }
+  .since b{ font-weight:600; }
+
+  .lvl{
+    display:inline-block;
+    font-size:10.5px;
+    font-weight:600;
+    padding:0 6px;
+    border-radius:3px;
+    margin-right:6px;
+    vertical-align:1px;
+    border:1px solid var(--flat-line);
+    color:var(--flat);
+    background:var(--flat-soft);
+  }
+  .lvl[data-l="urgent"]{ color:var(--surface); background:var(--up); border-color:var(--up); }
+  .lvl[data-l="important"]{ color:var(--up); background:var(--up-soft); border-color:var(--up-line); }
+
   @media (max-width:760px){
     .slots{ grid-template-columns:repeat(4, minmax(0,1fr)); }
   }
@@ -598,7 +817,61 @@
     </div>
   </section>
 
+  <div class="duo">
+    <section class="panel" aria-labelledby="todoHead">
+      <div class="panel-head">
+        <h2 id="todoHead">오늘 할 일</h2>
+        <span class="panel-meta" id="todoMeta"></span>
+      </div>
+      <ul class="todo" id="todo"></ul>
+    </section>
+    <section class="panel" aria-labelledby="evHead">
+      <div class="panel-head">
+        <h2 id="evHead">다가오는 일정</h2>
+        <span class="panel-meta">2주 안 · 한국 날짜</span>
+      </div>
+      <ul class="events" id="events"></ul>
+    </section>
+  </div>
+
   <div class="rail" id="rail"></div>
+
+  <section class="sect" id="holdSect" aria-labelledby="holdHead">
+    <div class="sect-head">
+      <h2 id="holdHead">내 보유 종목</h2>
+      <span class="sect-meta" id="holdMeta"></span>
+    </div>
+    <div class="legend">
+      <span>산 종목을 기록하면 알림이 현재가를 갱신하고, 손절선에 3% 이내로 다가오거나 익절선에 닿으면 긴급 알림을 보냅니다.</span>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl" id="holdTbl">
+        <thead><tr><th>종목</th><th>수량</th><th>매수가</th><th>현재가</th><th>손익</th><th>손절까지</th><th>상태</th><th></th></tr></thead>
+        <tbody id="holdBody"></tbody>
+      </table>
+    </div>
+    <div class="hold-sum" id="holdSum"></div>
+
+    <form class="form" id="posForm" autocomplete="off">
+      <p class="form-title">매수 기록</p>
+      <div class="fields">
+        <div class="field"><label for="posName">종목</label><input id="posName" list="stockNames" placeholder="예: 마이크론 테크놀로지" required></div>
+        <div class="field"><label for="posCur">통화</label><select id="posCur"><option value="USD">달러 (미국)</option><option value="KRW">원 (국내)</option></select></div>
+        <div class="field"><label for="posPrice">매수가</label><input id="posPrice" class="num" inputmode="decimal" placeholder="1080.5" required></div>
+        <div class="field"><label for="posQty">수량 (소수점 가능)</label><input id="posQty" class="num" inputmode="decimal" placeholder="0.16" required></div>
+        <div class="field"><label for="posStop">손절가</label><input id="posStop" class="num" inputmode="decimal" placeholder="자동 −7%"></div>
+        <div class="field"><label for="posTake">익절가 (절반)</label><input id="posTake" class="num" inputmode="decimal" placeholder="자동 +15%"></div>
+        <div class="field wide"><label for="posNote">산 이유 한 줄</label><input id="posNote" placeholder="예: 9/30 실적 전 1차 분할 매수"></div>
+      </div>
+      <div class="form-foot">
+        <label class="check"><input type="checkbox" id="posFollowed"> 데스크 시그널을 따른 매수</label>
+        <label class="check"><input type="checkbox" id="posStopSet"> 증권사에 자동 손절 주문을 걸었음</label>
+        <button class="mini solid" type="submit" id="posSave">기록</button>
+        <span class="form-msg" id="posMsg" role="status"></span>
+      </div>
+      <datalist id="stockNames"></datalist>
+    </form>
+  </section>
 
   <section class="goal" aria-labelledby="goalHead">
     <h2 id="goalHead">목표 — 100만원 → 300만원, 2개월</h2>
@@ -676,11 +949,34 @@
     </div>
   </section>
 
+  <section class="sect" id="reviewSect" aria-labelledby="revHead">
+    <div class="sect-head">
+      <h2 id="revHead">복기</h2>
+      <span class="sect-meta">시그널이 맞았는지, 규칙을 지켰는지</span>
+    </div>
+    <div class="tiles" id="tiles"></div>
+    <h3 class="subhead">시그널 이후 수익률</h3>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>종목</th><th>시그널</th><th>시작일</th><th>시작가</th><th>현재 · 종료가</th><th>수익률</th></tr></thead>
+        <tbody id="scoreBody"></tbody>
+      </table>
+    </div>
+    <h3 class="subhead">매매일지</h3>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>종목</th><th>기간</th><th>매수가</th><th>매도가</th><th>손익</th><th>시그널</th><th>손절 주문</th><th>매도 이유</th></tr></thead>
+        <tbody id="journalBody"></tbody>
+      </table>
+    </div>
+  </section>
+
   <section class="sect" aria-labelledby="logHead">
     <div class="sect-head">
       <h2 id="logHead">알림 기록</h2>
       <span class="sect-meta" id="logMeta"></span>
     </div>
+    <div class="filters" id="logFilters"></div>
     <ol class="log" id="log"></ol>
     <button class="linkish more" type="button" id="logMore" hidden>이전 알림 더 보기</button>
   </section>
@@ -808,10 +1104,19 @@
   var plan = null;
   var runStatus = null;
   var portfolio = null;
-  var loaded = { news:false, picks:false, alerts:false };
+  var positions = [];
+  var events = [];
+  var signalLog = [];
+  var today = null;
+  var checks = null;
+  var fx = null;
+  var loaded = { news:false, picks:false, alerts:false, positions:false, today:false, events:false };
   var dbRef = null;
   var filter = { kind:"all", value:null };
   var logLimit = 8;
+  var logMode = "all";
+  var closingId = null;
+  var LVL = { urgent:"긴급", important:"중요", info:"정보" };
 
   function $(id){ return document.getElementById(id); }
   function el(tag, cls, text){
@@ -1045,6 +1350,8 @@
         r.appendChild(document.createTextNode(str(p.risk)));
         c.appendChild(r);
       }
+      var sinceEl = sinceLine(p);
+      if (sinceEl) c.appendChild(sinceEl);
       var news = arr(p.newsIds);
       if (news.length) {
         var f = el("div", "item-foot");
@@ -1112,10 +1419,22 @@
   function renderLog(){
     var ul = $("log");
     ul.textContent = "";
-    var list = alerts.slice().sort(function(a,b){ return str(b.at).localeCompare(str(a.at)); });
-    $("logMeta").textContent = loaded.alerts ? "총 " + list.length + "회" : "";
+    var all = alerts.slice().sort(function(a,b){ return str(b.at).localeCompare(str(a.at)); });
+    var list = logMode === "key" ? all.filter(function(a){ var l = str(a.level); return l === "urgent" || l === "important"; }) : all;
+    $("logMeta").textContent = loaded.alerts ? "총 " + all.length + "회" : "";
+    var fbox = $("logFilters");
+    fbox.textContent = "";
+    [["all","전체", all.length], ["key","긴급·중요만", all.length - all.filter(function(a){ var l = str(a.level); return l !== "urgent" && l !== "important"; }).length]].forEach(function(d){
+      var b = el("button", "chip");
+      b.type = "button";
+      b.appendChild(document.createTextNode(d[1]));
+      b.appendChild(el("span", "chip-count", d[2]));
+      b.setAttribute("aria-pressed", logMode === d[0] ? "true" : "false");
+      b.addEventListener("click", function(){ logMode = d[0]; renderLog(); });
+      fbox.appendChild(b);
+    });
     if (!list.length) {
-      ul.appendChild(el("li", "empty", loaded.alerts ? "아직 보낸 알림이 없습니다. 첫 알림 뒤 여기에 쌓입니다." : "알림 기록을 불러오는 중입니다."));
+      ul.appendChild(el("li", "empty", !loaded.alerts ? "알림 기록을 불러오는 중입니다." : logMode === "key" ? "긴급·중요 알림이 아직 없습니다." : "아직 보낸 알림이 없습니다. 첫 알림 뒤 여기에 쌓입니다."));
     }
     list.slice(0, logLimit).forEach(function(a){
       var li = el("li");
@@ -1124,7 +1443,13 @@
       w.appendChild(el("div", "log-slot", str(a.slot)));
       li.appendChild(w);
       var b = el("div");
-      b.appendChild(el("div", "log-title", str(a.title)));
+      var tt = el("div", "log-title");
+      var lvKey = LVL[str(a.level)] ? str(a.level) : "info";
+      var lv = el("span", "lvl", LVL[lvKey]);
+      lv.setAttribute("data-l", lvKey);
+      tt.appendChild(lv);
+      tt.appendChild(document.createTextNode(str(a.title)));
+      b.appendChild(tt);
       if (str(a.body)) b.appendChild(el("div", "log-body", str(a.body)));
       li.appendChild(b);
       ul.appendChild(li);
@@ -1283,14 +1608,469 @@
     $("wlCount").textContent = "고유 " + total + "종목 · 뉴스 있는 종목 " + marked;
   }
 
+  /* ---------- shared number helpers ---------- */
+  function parseNum(s){
+    var v = parseFloat(String(s == null ? "" : s).replace(/[,\s원$]/g, ""));
+    return isFinite(v) ? v : null;
+  }
+  function money(v, cur){
+    if (v == null) return "—";
+    return cur === "KRW"
+      ? Math.round(v).toLocaleString("ko-KR") + "원"
+      : "$" + v.toLocaleString("en-US", { minimumFractionDigits:2, maximumFractionDigits:2 });
+  }
+  function pct(v){ return (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(1) + "%"; }
+  function curOf(p){ return str(p.currency) === "KRW" ? "KRW" : "USD"; }
+  function fxRate(){ return fx && num(fx.usdkrw) ? fx.usdkrw : null; }
+  function isKR(name){ return /삼성전자|SK하이닉스|KODEX/.test(name); }
+  function tickerOf(name){
+    for (var i = 0; i < BOARD.length; i++) {
+      for (var j = 0; j < BOARD[i].stocks.length; j++) {
+        if (BOARD[i].stocks[j][0] === name) return BOARD[i].stocks[j][1];
+      }
+    }
+    return "";
+  }
+  function pickFor(name){
+    for (var i = 0; i < picks.length; i++) {
+      if (str(picks[i].name) === name || arr(picks[i].aliases).indexOf(name) !== -1) return picks[i];
+    }
+    return null;
+  }
+  function shortDate(iso){
+    var d = new Date(str(iso));
+    if (isNaN(d.getTime())) return fmtDate(str(iso).slice(0, 10));
+    var k = kst(d.getTime());
+    return pad2(k.mo) + "." + pad2(k.d);
+  }
+
+  /* 시그널 이후 수익률: 매수 관심은 오르면, 회피는 내리면 적중 */
+  function sinceLine(p){
+    var start = num(p.priceAtSignal), last = num(p.lastPrice);
+    if (start == null || last == null || !start) return null;
+    var r = (last / start - 1) * 100;
+    var cur = curOf(p);
+    var d = el("div", "since");
+    d.appendChild(document.createTextNode("시그널 이후 "));
+    d.appendChild(el("b", "mono " + (r >= 0 ? "up" : "down"), pct(r)));
+    d.appendChild(document.createTextNode(" · " + (str(p.signalDate) ? fmtDate(p.signalDate) + " " : "") + money(start, cur) + " → " + money(last, cur)));
+    return d;
+  }
+
+  /* ---------- today checklist ---------- */
+  function renderTodo(){
+    var ul = $("todo");
+    ul.textContent = "";
+    var list = today && Array.isArray(today.items) ? today.items.filter(function(x){ return x && str(x.text); }) : [];
+    var date = today ? str(today.date) : "";
+    var done = checks && checks.date === date && checks.done && typeof checks.done === "object" ? checks.done : {};
+    var n = 0;
+    list.forEach(function(it, i){
+      var id = (str(it.id) || ("t" + i)).replace(/[^A-Za-z0-9_-]/g, "");
+      var isDone = done[id] === true;
+      if (isDone) n++;
+      var li = el("li");
+      li.setAttribute("data-done", isDone ? "1" : "0");
+      var lab = el("label");
+      var cb = el("input");
+      cb.type = "checkbox";
+      cb.id = "todo-" + id;
+      cb.checked = isDone;
+      cb.disabled = !dbRef;
+      cb.addEventListener("change", function(){ toggleCheck(date, id, cb.checked); });
+      lab.appendChild(cb);
+      var t = el("span", "t-text");
+      var lvl = str(it.level);
+      if (lvl === "urgent" || lvl === "important") {
+        var lv = el("span", "lvl", LVL[lvl]);
+        lv.setAttribute("data-l", lvl);
+        t.appendChild(lv);
+      }
+      t.appendChild(document.createTextNode(str(it.text)));
+      if (str(it.when)) t.appendChild(el("span", "t-when", str(it.when)));
+      lab.appendChild(t);
+      li.appendChild(lab);
+      ul.appendChild(li);
+    });
+    if (!list.length) {
+      ul.appendChild(el("li", "side-why", loaded.today ? "따로 할 일이 없습니다. 걸어둔 주문과 손절선만 유지하세요." : "불러오는 중입니다."));
+    }
+    $("todoMeta").textContent = list.length ? (date ? fmtDate(date) + " · " : "") + n + "/" + list.length + " 완료" : "";
+  }
+  function toggleCheck(date, id, on){
+    if (!dbRef || !date) return;
+    var prev = checks && checks.date === date && checks.done ? checks.done : {};
+    var done = {};
+    Object.keys(prev).forEach(function(k){ if (prev[k] === true) done[k] = true; });
+    if (on) done[id] = true; else delete done[id];
+    checks = { date:date, done:done };
+    renderTodo();
+    dbRef.doc("checks/" + date).set({ date:date, done:done, updatedAt:new Date().toISOString() }).catch(function(){});
+  }
+
+  /* ---------- upcoming events ---------- */
+  function renderEvents(){
+    var ul = $("events");
+    ul.textContent = "";
+    var k = kst(Date.now());
+    var todayMs = Date.UTC(k.y, k.mo - 1, k.d);
+    var list = events.map(function(e){ return { e:e, t:dayMs(str(e.date)) }; })
+      .filter(function(x){ return isFinite(x.t) && x.t >= todayMs && x.t <= todayMs + 14 * 86400000; })
+      .sort(function(a,b){ return (a.t - b.t) || str(a.e.time).localeCompare(str(b.e.time)); });
+    list.forEach(function(x){
+      var li = el("li");
+      li.appendChild(el("span", "ev-date mono", fmtDate(x.e.date)));
+      var t = el("span", "ev-title", str(x.e.title));
+      var sub = [str(x.e.kind), str(x.e.time)].filter(Boolean).join(" · ");
+      if (sub) t.appendChild(el("span", "ev-kind", sub));
+      li.appendChild(t);
+      var d = Math.round((x.t - todayMs) / 86400000);
+      var dd = el("span", "dday", d === 0 ? "오늘" : "D-" + d);
+      dd.setAttribute("data-soon", d <= 2 ? "1" : "0");
+      li.appendChild(dd);
+      ul.appendChild(li);
+    });
+    if (!list.length) {
+      ul.appendChild(el("li", "side-why", loaded.events ? "2주 안에 잡힌 일정이 없습니다." : "불러오는 중입니다."));
+    }
+  }
+
+  /* ---------- holdings ---------- */
+  function posState(p){
+    var last = num(p.lastPrice), stop = num(p.stop), take = num(p.take);
+    if (last == null) return { s:"none", label:"가격 대기" };
+    if (stop != null && last <= stop) return { s:"stop", label:"손절선 도달" };
+    if (take != null && last >= take) return { s:"take", label:"익절선 도달" };
+    if (stop != null && (last - stop) / last <= 0.03) return { s:"near", label:"손절 근접" };
+    return { s:"ok", label:"정상" };
+  }
+  function addSum(box, k, v){
+    var s = el("span");
+    s.appendChild(document.createTextNode(k + " "));
+    s.appendChild(el("b", "mono", v));
+    box.appendChild(s);
+  }
+  function renderHoldings(){
+    var body = $("holdBody");
+    body.textContent = "";
+    var open = positions.filter(function(p){ return str(p.status) !== "closed"; })
+      .sort(function(a,b){ return str(a.openedAt).localeCompare(str(b.openedAt)); });
+    var fxv = fxRate(), totCost = 0, totVal = 0, fxMissing = false;
+
+    open.forEach(function(p){
+      var cur = curOf(p);
+      var qty = num(p.qty) || 0, avg = num(p.avgPrice) || 0, last = num(p.lastPrice), stop = num(p.stop);
+      var tr = el("tr");
+
+      var nm = el("td", "name");
+      nm.appendChild(el("b", null, str(p.name)));
+      nm.appendChild(el("small", null, [str(p.ticker), p.followed === true ? "시그널 매수" : "", p.stopOrder === true ? "자동 손절 설정" : "자동 손절 미설정"].filter(Boolean).join(" · ")));
+      tr.appendChild(nm);
+
+      tr.appendChild(el("td", null, qty.toLocaleString("en-US", { maximumFractionDigits:4 })));
+      tr.appendChild(el("td", null, money(avg, cur)));
+
+      var lc = el("td", null, money(last, cur));
+      if (str(p.lastPriceAt)) lc.appendChild(el("span", "sub", fmtStamp(p.lastPriceAt) || ""));
+      tr.appendChild(lc);
+
+      var pl = el("td");
+      if (last != null && avg) {
+        var r = (last / avg - 1) * 100;
+        pl.textContent = pct(r);
+        pl.className = r >= 0 ? "up" : "down";
+        pl.appendChild(el("span", "sub", money((last - avg) * qty, cur)));
+      } else {
+        pl.textContent = "—";
+      }
+      tr.appendChild(pl);
+
+      var sc = el("td", null, last != null && stop != null ? pct((stop / last - 1) * 100) : "—");
+      if (stop != null) sc.appendChild(el("span", "sub", money(stop, cur)));
+      tr.appendChild(sc);
+
+      var st = posState(p);
+      var stc = el("td");
+      var chip = el("span", "state", st.label);
+      chip.setAttribute("data-s", st.s);
+      stc.appendChild(chip);
+      tr.appendChild(stc);
+
+      var act = el("td");
+      var b = el("button", "mini", closingId === p.id ? "취소" : "매도 기록");
+      b.type = "button";
+      b.disabled = !dbRef;
+      b.addEventListener("click", function(){ closingId = closingId === p.id ? null : p.id; renderHoldings(); });
+      act.appendChild(b);
+      tr.appendChild(act);
+      body.appendChild(tr);
+      if (closingId === p.id) body.appendChild(closeRow(p, cur));
+
+      var toKRW = cur === "KRW" ? 1 : fxv;
+      if (toKRW == null) { fxMissing = true; return; }
+      totCost += avg * qty * toKRW;
+      totVal += (last != null ? last : avg) * qty * toKRW;
+    });
+
+    if (!open.length) {
+      var tr0 = el("tr");
+      var td0 = el("td", "name", loaded.positions ? "아직 기록한 보유 종목이 없습니다. 아래에서 매수를 기록하세요." : "불러오는 중입니다.");
+      td0.colSpan = 8;
+      tr0.appendChild(td0);
+      body.appendChild(tr0);
+    }
+    $("holdMeta").textContent = open.length ? open.length + "종목 보유" : "";
+
+    var sum = $("holdSum");
+    sum.textContent = "";
+    if (open.length) {
+      var base = portfolio && num(portfolio.balance) ? portfolio.balance : (plan && num(plan.capital)) || GOAL.start;
+      addSum(sum, "투자 원금", won(totCost));
+      addSum(sum, "평가액", won(totVal));
+      addSum(sum, "계좌 대비", Math.round(totVal / base * 100) + "%");
+      if (fxv) addSum(sum, "환율", fxv.toLocaleString("ko-KR") + "원/$");
+      if (fxMissing) sum.appendChild(el("span", null, "환율이 아직 없어 달러 종목은 합계에서 빠졌습니다."));
+    }
+  }
+
+  function closeRow(p, cur){
+    var tr = el("tr", "close-row");
+    var td = el("td");
+    td.colSpan = 8;
+    var f = el("form", "close-form");
+
+    var l1 = el("label", null, "매도가");
+    l1.htmlFor = "closePrice";
+    var price = el("input");
+    price.id = "closePrice";
+    price.inputMode = "decimal";
+    price.placeholder = num(p.lastPrice) != null ? String(p.lastPrice) : (cur === "KRW" ? "원" : "$");
+
+    var l2 = el("label", null, "이유");
+    l2.htmlFor = "closeReason";
+    var reason = el("select");
+    reason.id = "closeReason";
+    ["익절","손절","시그널 변경","기타"].forEach(function(r){ var o = el("option", null, r); o.value = r; reason.appendChild(o); });
+
+    var kept = el("label", "check");
+    var kc = el("input");
+    kc.type = "checkbox";
+    kc.id = "closeKept";
+    kc.checked = true;
+    kept.appendChild(kc);
+    kept.appendChild(document.createTextNode("정한 손절·익절 규칙대로 매도"));
+
+    var ok = el("button", "mini solid", "매도 기록");
+    ok.type = "submit";
+    var msg = el("span", "form-msg");
+
+    [l1, price, l2, reason, kept, ok, msg].forEach(function(n){ f.appendChild(n); });
+    f.addEventListener("submit", function(ev){
+      ev.preventDefault();
+      var v = parseNum(price.value);
+      if (v == null || v <= 0) { msg.textContent = "매도가를 숫자로 입력해 주세요."; return; }
+      ok.disabled = true;
+      dbRef.doc("positions/" + p.id).update({
+        status:"closed", closePrice:v, closedAt:new Date().toISOString(),
+        closeReason:reason.value, ruleKept:kc.checked
+      }).then(function(){ closingId = null; renderHoldings(); })
+        .catch(function(){ msg.textContent = "기록하지 못했습니다. 편집 권한을 확인해 주세요."; ok.disabled = false; });
+    });
+    td.appendChild(f);
+    tr.appendChild(td);
+    setTimeout(function(){ try { price.focus(); } catch (e) {} }, 0);
+    return tr;
+  }
+
+  /* 매수 기록 폼 */
+  (function(){
+    var dl = $("stockNames");
+    var seen = Object.create(null);
+    BOARD.forEach(function(col){
+      col.stocks.forEach(function(s){
+        if (seen[s[0]]) return;
+        seen[s[0]] = true;
+        var o = el("option");
+        o.value = s[0];
+        dl.appendChild(o);
+      });
+    });
+  })();
+  function stopPctFor(name){
+    var pk = pickFor(name);
+    return pk && /10\s*%/.test(str(pk.stop)) ? 0.10 : 0.07;
+  }
+  function roundFor(v, cur){ return cur === "KRW" ? Math.round(v) : Math.round(v * 100) / 100; }
+  function refreshAuto(){
+    var name = $("posName").value.trim();
+    var cur = $("posCur").value;
+    var price = parseNum($("posPrice").value);
+    var sp = stopPctFor(name);
+    $("posStop").placeholder = price ? "자동 " + money(roundFor(price * (1 - sp), cur), cur) + " (−" + Math.round(sp * 100) + "%)" : "자동 −" + Math.round(sp * 100) + "%";
+    $("posTake").placeholder = price ? "자동 " + money(roundFor(price * 1.15, cur), cur) + " (+15%)" : "자동 +15%";
+  }
+  $("posName").addEventListener("change", function(){
+    var name = $("posName").value.trim();
+    $("posCur").value = isKR(name) ? "KRW" : "USD";
+    var pk = pickFor(name);
+    $("posFollowed").checked = !!(pk && str(pk.signal) === "buy");
+    refreshAuto();
+  });
+  $("posCur").addEventListener("change", refreshAuto);
+  $("posPrice").addEventListener("input", refreshAuto);
+
+  $("posForm").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var msg = $("posMsg");
+    var name = $("posName").value.trim();
+    var cur = $("posCur").value === "KRW" ? "KRW" : "USD";
+    var price = parseNum($("posPrice").value);
+    var qty = parseNum($("posQty").value);
+    if (!name) { msg.textContent = "종목을 입력해 주세요."; return; }
+    if (price == null || price <= 0 || qty == null || qty <= 0) { msg.textContent = "매수가와 수량을 숫자로 입력해 주세요."; return; }
+    if (!dbRef) { msg.textContent = "저장소에 연결되지 않아 기록할 수 없습니다."; return; }
+    var sp = stopPctFor(name);
+    var stop = parseNum($("posStop").value);
+    var take = parseNum($("posTake").value);
+    var btn = $("posSave");
+    btn.disabled = true;
+    dbRef.collection("positions").add({
+      name:name,
+      ticker:tickerOf(name),
+      currency:cur,
+      avgPrice:price,
+      qty:qty,
+      stop:stop != null ? stop : roundFor(price * (1 - sp), cur),
+      take:take != null ? take : roundFor(price * 1.15, cur),
+      note:$("posNote").value.trim(),
+      followed:$("posFollowed").checked,
+      stopOrder:$("posStopSet").checked,
+      status:"open",
+      openedAt:new Date().toISOString()
+    }).then(function(){
+      msg.textContent = name + " 매수를 기록했습니다. 다음 알림부터 손절선을 지켜봅니다.";
+      ["posName","posPrice","posQty","posStop","posTake","posNote"].forEach(function(id){ $(id).value = ""; });
+      $("posFollowed").checked = false;
+      $("posStopSet").checked = false;
+      refreshAuto();
+    }).catch(function(){
+      msg.textContent = "기록하지 못했습니다. 이 페이지의 편집 권한이 있는지 확인해 주세요.";
+    }).then(function(){ btn.disabled = false; });
+  });
+
+  /* ---------- review ---------- */
+  function tile(box, k, v, s, cls){
+    var t = el("div", "tile");
+    t.appendChild(el("div", "tile-k", k));
+    t.appendChild(el("div", "tile-v mono" + (cls ? " " + cls : ""), v));
+    if (s) t.appendChild(el("div", "tile-s", s));
+    box.appendChild(t);
+  }
+  function renderReview(){
+    /* 시그널 성적: 현재 시그널(시작가가 있는 매수·회피) + 종료된 시그널 기록 */
+    var rows = [];
+    picks.forEach(function(p){
+      var sg = str(p.signal);
+      if ((sg === "buy" || sg === "avoid") && num(p.priceAtSignal) != null && num(p.lastPrice) != null) {
+        rows.push({ name:str(p.name), signal:sg, start:str(p.signalDate), sp:p.priceAtSignal, ep:p.lastPrice, cur:curOf(p), open:true });
+      }
+    });
+    signalLog.forEach(function(s){
+      var sg = str(s.signal);
+      if ((sg === "buy" || sg === "avoid") && num(s.startPrice) != null && num(s.endPrice) != null) {
+        rows.push({ name:str(s.name), signal:sg, start:str(s.startDate), end:str(s.endDate), sp:s.startPrice, ep:s.endPrice, cur:curOf(s), open:false });
+      }
+    });
+    rows.forEach(function(r){ r.ret = (r.ep / r.sp - 1) * 100; r.hit = r.signal === "buy" ? r.ret > 0 : r.ret < 0; });
+
+    var hits = rows.filter(function(r){ return r.hit; }).length;
+    var buys = rows.filter(function(r){ return r.signal === "buy"; });
+    var avgBuy = buys.length ? buys.reduce(function(a, r){ return a + r.ret; }, 0) / buys.length : null;
+
+    var closed = positions.filter(function(p){ return str(p.status) === "closed" && num(p.closePrice) != null && num(p.avgPrice); });
+    var fxv = fxRate(), realized = 0, realizedCost = 0;
+    closed.forEach(function(p){
+      var toKRW = curOf(p) === "KRW" ? 1 : (fxv || 0);
+      var q = num(p.qty) || 0;
+      realized += (p.closePrice - p.avgPrice) * q * toKRW;
+      realizedCost += p.avgPrice * q * toKRW;
+    });
+    var withStop = positions.filter(function(p){ return p.stopOrder === true; }).length;
+    var kept = closed.filter(function(p){ return p.ruleKept === true; }).length;
+
+    var box = $("tiles");
+    box.textContent = "";
+    tile(box, "시그널 적중", rows.length ? hits + " / " + rows.length : "—", "매수 관심은 오르면, 회피는 내리면 적중");
+    tile(box, "매수 관심 평균", avgBuy != null ? pct(avgBuy) : "—", "시그널을 낸 뒤 지금까지", avgBuy == null ? "" : avgBuy >= 0 ? "up" : "down");
+    tile(box, "실현 손익", closed.length ? won(realized) : "—", closed.length ? closed.length + "건 매도 · " + (realizedCost ? pct(realized / realizedCost * 100) : "") : "매도 기록이 쌓이면 계산", closed.length ? (realized >= 0 ? "up" : "down") : "");
+    tile(box, "자동 손절 설정", positions.length ? withStop + " / " + positions.length : "—", "매수할 때 증권사 손절 주문을 건 비율");
+    tile(box, "규칙대로 매도", closed.length ? kept + " / " + closed.length : "—", "정한 손절·익절 규칙을 지킨 매도");
+
+    var sb = $("scoreBody");
+    sb.textContent = "";
+    rows.sort(function(a,b){ return (a.open === b.open ? 0 : a.open ? -1 : 1) || str(b.start).localeCompare(str(a.start)); });
+    rows.forEach(function(r){
+      var tr = el("tr");
+      tr.appendChild(el("td", "name", r.name));
+      var sg = el("td");
+      var chip = el("span", "state", SIG[r.signal].label + (r.open ? "" : " · 종료"));
+      chip.setAttribute("data-s", r.signal === "buy" ? "take" : "near");
+      sg.appendChild(chip);
+      tr.appendChild(sg);
+      tr.appendChild(el("td", null, r.start ? fmtDate(r.start) : "—"));
+      tr.appendChild(el("td", null, money(r.sp, r.cur)));
+      tr.appendChild(el("td", null, money(r.ep, r.cur) + (r.open ? "" : " (" + (r.end ? fmtDate(r.end) : "") + ")")));
+      var rc = el("td", r.ret >= 0 ? "up" : "down", pct(r.ret) + (r.hit ? " 적중" : ""));
+      tr.appendChild(rc);
+      sb.appendChild(tr);
+    });
+    if (!rows.length) {
+      var tr0 = el("tr");
+      var td0 = el("td", "name", "시그널 시작가와 현재가가 채워지면 여기에 표시됩니다. 다음 알림부터 기록합니다.");
+      td0.colSpan = 6;
+      tr0.appendChild(td0);
+      sb.appendChild(tr0);
+    }
+
+    var jb = $("journalBody");
+    jb.textContent = "";
+    closed.slice().sort(function(a,b){ return str(b.closedAt).localeCompare(str(a.closedAt)); }).forEach(function(p){
+      var cur = curOf(p);
+      var r = (p.closePrice / p.avgPrice - 1) * 100;
+      var tr = el("tr");
+      var nm = el("td", "name");
+      nm.appendChild(el("b", null, str(p.name)));
+      if (str(p.note)) nm.appendChild(el("small", null, str(p.note)));
+      tr.appendChild(nm);
+      tr.appendChild(el("td", null, shortDate(p.openedAt) + "→" + shortDate(p.closedAt)));
+      tr.appendChild(el("td", null, money(p.avgPrice, cur)));
+      tr.appendChild(el("td", null, money(p.closePrice, cur)));
+      var pc = el("td", r >= 0 ? "up" : "down", pct(r));
+      pc.appendChild(el("span", "sub", money((p.closePrice - p.avgPrice) * (num(p.qty) || 0), cur)));
+      tr.appendChild(pc);
+      tr.appendChild(el("td", null, p.followed === true ? "따름" : "안 따름"));
+      tr.appendChild(el("td", null, p.stopOrder === true ? "설정" : "미설정"));
+      tr.appendChild(el("td", "name", str(p.closeReason) + (p.ruleKept === false ? " · 규칙 어김" : "")));
+      jb.appendChild(tr);
+    });
+    if (!closed.length) {
+      var trj = el("tr");
+      var tdj = el("td", "name", "매도를 기록하면 여기에 쌓입니다. 보유 종목 표의 '매도 기록'을 누르세요.");
+      tdj.colSpan = 8;
+      trj.appendChild(tdj);
+      jb.appendChild(trj);
+    }
+  }
+
   function renderFeedAll(){ renderFilters(); renderNote(); renderFeed(); }
   function renderAll(){
-    renderStamp(); renderRail(); renderTrack(); renderSignals(); renderLog(); renderFeedAll(); renderBoard();
+    renderStamp(); renderTodo(); renderEvents(); renderRail(); renderHoldings(); renderTrack();
+    renderSignals(); renderReview(); renderLog(); renderFeedAll(); renderBoard();
   }
 
   renderClock();
   renderAll();
-  setInterval(function(){ renderClock(); renderTrack(); }, 30000);
+  setInterval(function(){ renderClock(); renderTrack(); renderEvents(); }, 30000);
 
   /* ---------- 저장소 연결 ---------- */
   (function connect(){
@@ -1317,7 +2097,7 @@
       db.collection("picks").onSnapshot(function(snap){
         picks = snap.docs.map(function(d){ var v = d.data() || {}; v.id = d.id; return v; });
         loaded.picks = true;
-        renderSignals(); renderBoard();
+        renderSignals(); renderBoard(); renderReview();
       }, function(){ loaded.picks = true; renderSignals(); });
 
       db.collection("alerts").orderBy("at", "desc").limit(200).onSnapshot(function(snap){
@@ -1344,8 +2124,48 @@
 
       db.doc("portfolio/main").onSnapshot(function(snap){
         portfolio = (snap.exists && snap.data()) || null;
-        renderTrack(); renderSignals();
+        renderTrack(); renderSignals(); renderHoldings();
       }, function(){});
+
+      db.collection("positions").limit(300).onSnapshot(function(snap){
+        positions = snap.docs.map(function(d){ var v = d.data() || {}; v.id = d.id; return v; });
+        loaded.positions = true;
+        renderHoldings(); renderReview();
+      }, function(){ loaded.positions = true; renderHoldings(); });
+
+      db.collection("events").orderBy("date", "asc").limit(100).onSnapshot(function(snap){
+        events = snap.docs.map(function(d){ var v = d.data() || {}; v.id = d.id; return v; });
+        loaded.events = true;
+        renderEvents();
+      }, function(){ loaded.events = true; renderEvents(); });
+
+      db.collection("signalLog").limit(300).onSnapshot(function(snap){
+        signalLog = snap.docs.map(function(d){ var v = d.data() || {}; v.id = d.id; return v; });
+        renderReview();
+      }, function(){});
+
+      db.doc("meta/fx").onSnapshot(function(snap){
+        fx = (snap.exists && snap.data()) || null;
+        renderHoldings(); renderReview();
+      }, function(){});
+
+      var checksUnsub = null, checksDate = "";
+      db.doc("meta/today").onSnapshot(function(snap){
+        today = (snap.exists && snap.data()) || null;
+        loaded.today = true;
+        var date = today ? str(today.date) : "";
+        if (date && date !== checksDate && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+          if (typeof checksUnsub === "function") checksUnsub();
+          checksDate = date;
+          checks = null;
+          checksUnsub = db.doc("checks/" + date).onSnapshot(function(cs){
+            var v = (cs.exists && cs.data()) || {};
+            checks = { date:date, done:(v.done && typeof v.done === "object") ? v.done : {} };
+            renderTodo();
+          }, function(){});
+        }
+        renderTodo();
+      }, function(){ loaded.today = true; renderTodo(); });
     }).catch(function(){});
   })();
 })();
