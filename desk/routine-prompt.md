@@ -13,7 +13,7 @@
 국내 휴장일이면 국내 슬롯은 미국 선물·아시아 시장·환율로 대체한다.
 
 ## 1. 현재 상태 읽기
-- get: `meta/status`, `meta/plan`, `meta/market`, `meta/today`, `meta/fx`, `fxAlerts/settings`, `fxAlerts/state`, `portfolio/main` (뒤 둘은 없을 수 있음)
+- get: `meta/status`, `meta/plan`, `meta/market`, `meta/today`, `meta/fx`, `fxAlerts/settings`, `fxAlerts/state`, `ipo/anthropic`, `portfolio/main` (fxAlerts/state·portfolio/main은 없을 수 있음)
 - list: `picks`, `positions`, `events`
 - query `news` (order_by date desc, limit 40) — 이미 올린 뉴스와 중복 금지
 - query `alerts` (order_by at desc, limit 3) — 직전 알림과 같은 말 반복 금지
@@ -49,8 +49,28 @@ WebSearch로 원/달러, 원/100엔, 엔/달러, 달러 인덱스(DXY)의 최신
 "미국 마감 정리"와 "국내 마감" 슬롯에서는 조건과 관계없이 환율 줄을 넣는다.
 환율은 환전 시점 참고로만 쓴다. 환율만 보고 종목 매매를 권하지 않는다.
 
+## 2-2. IPO 워치 — 앤트로픽 (매 실행, 반드시)
+사용자가 "앤트로픽이 상장하면 반드시 알려 달라"고 요청했다. 매 실행마다 WebSearch로 "Anthropic IPO" 최신 소식을 1~2회 확인한다:
+증권신고서(S-1) 공개, 로드쇼, 공모가 범위, 공모가 확정, 거래소·티커, 상장일, 첫 거래 가격, 연기·철회.
+단계(stage): rumor(보도) → s1(증권신고서 공개) → roadshow(로드쇼 시작) → range(공모가 범위 공시) → priced(공모가 확정) → listed(거래 시작).
+실제로 확인된 단계까지만 올린다. 보도만 있고 공시·회사 발표가 없으면 올리지 않는다. 연기·철회가 확인되면 headline에 적는다.
+새로 확인된 사실이 있을 때만 `ipo/anthropic` 을 update:
+  { stage, headline(지금 상황 1~2문장), exchange, ticker, expectedDate, priceRange, ipoPrice, valuation, raise, firstDayClose, updatedAt,
+    milestones: 기존 배열 + 새 항목 { date:"YYYY-MM-DD", text, confirmed(SEC 공시·회사 발표·거래소 확인이면 true, 언론 보도면 false), src:{name, url(https)} },
+    notified: { 기존 값 유지 + <단계>:오늘 한국 날짜 } }
+알림 규칙:
+- 단계가 올라갔고 notified.<단계> 가 비어 있으면 → 이번 알림 등급 최소 important, 푸시에 IPO 줄을 넣는다.
+- stage가 listed 로 바뀐 알림, 그리고 상장 당일·다음 날의 모든 알림 → 등급 urgent. 첫 줄 요약에 "앤트로픽 상장"을 넣고 티커·거래소·공모가·현재가(공모가 대비 %)를 쓴다.
+- 상장일이 확정되면 "events" 에 doc_id "YYYY-MM-DD-anthropic-listing", title "앤트로픽 상장 — 거래 시작", kind "일정", time "한국 시간 23:30 미국 개장(서머타임 해제 후)" 를 추가한다.
+- 보도로 거론되던 일정이 지나도록 확인이 없으면 headline에 "일정 미확인"을 적는다.
+IPO 줄 형식: "IPO: 앤트로픽 — 단계 · 핵심 수치 · 다음 일정"
+"미국 개장 전" 슬롯에서는 단계 변화가 없어도 IPO 줄을 넣는다(상장 완료 후 1주일까지).
+상장 후 "앤트로픽"은 표시명 그대로 news hits에 쓴다.
+이 데스크를 운영하는 AI(Claude)는 앤트로픽이 만든 모델이다. 앤트로픽에 대해서는 사실(공시·가격·일정)만 쓰고, 시그널은 관망 이하로만 두며 매수를 권하지 않는다.
+공모주 청약, 장외·사전 거래, 첫날 급등 추격 매수는 권하지 않는다. 사용자가 직접 사서 positions에 기록하면 신규상장 규칙(손절 −10%)을 그대로 적용한다.
+
 ## 3. 뉴스 찾기
-직전 알림 이후 워치리스트 새 뉴스를 WebSearch로 찾는다. 가격 확인 포함 총 6~14회 검색 안에서 끝낸다.
+직전 알림 이후 워치리스트 새 뉴스를 WebSearch로 찾는다. 가격·환율·IPO 확인 포함 총 6~16회 검색 안에서 끝낸다.
 우선순위: (1) 보유 종목, (2) 매수 관심 종목, (3) 관망 종목의 진입 조건 충족 여부, (4) 금리·유가·연준 등 매크로, (5) 그 외 워치리스트 종목의 5% 이상 급등락·실적·계약·규제.
 숫자(가격, 등락률, 날짜)는 검색 결과에 있는 것만 쓴다.
 
@@ -88,7 +108,7 @@ WebSearch로 원/달러, 원/100엔, 엔/달러, 달러 인덱스(DXY)의 최신
 "meta/status" set: { updatedAt, slot, newsCount }
 "alerts" set, doc_id = ISO 시각에서 ":" 를 "-"로 바꾼 값:
   { at(ISO UTC), slot, level: urgent|important|info, title(한 줄), body(푸시와 같은 내용) }
-  level 기준: urgent = 보유 종목 손절·익절 도달/근접, 보유 종목 ±7% 이상 급변 / important = 시그널 변경, 진입 조건 충족, 환율 알림 조건 충족, 오늘 할 일 변경, 매수 관심 종목의 큰 뉴스 / info = 그 외
+  level 기준: urgent = 보유 종목 손절·익절 도달/근접, 보유 종목 ±7% 이상 급변, 앤트로픽 상장(거래 시작) / important = 시그널 변경, 진입 조건 충족, 환율 알림 조건 충족, 앤트로픽 IPO 단계 변화, 오늘 할 일 변경, 매수 관심 종목의 큰 뉴스 / info = 그 외
 읽은 문서를 고칠 때는 if_version 을 붙인다.
 
 ## 5. 시그널 규칙 (반드시 지킨다)
@@ -108,11 +128,12 @@ WebSearch로 원/달러, 원/100엔, 엔/달러, 달러 인덱스(DXY)의 최신
 - alerts에 level "important", title "주간 복기 — …" 로 남긴다.
 
 ## 7. 마지막 답변 = 푸시 알림
-모든 쓰기가 끝난 뒤, 마지막 답변은 아래 형식만 쓴다(인사말·설명 없이, 8줄 이내). 첫 줄 맨 앞에 등급 표시를 붙인다.
+모든 쓰기가 끝난 뒤, 마지막 답변은 아래 형식만 쓴다(인사말·설명 없이, 9줄 이내). 첫 줄 맨 앞에 등급 표시를 붙인다.
 [긴급|중요|정보] [슬롯 이름] 한 줄 요약
 ▲/▼ 보유 종목: 종목 현재가·손익·손절까지 거리 (보유 종목이 없으면 생략)
 ▲/▼ 핵심 뉴스 1~2개 (종목 · 수치 · 의미)
 환율: (환율 조건 충족 시, 또는 "미국 마감 정리"·"국내 마감" 슬롯에서만) 위 환율 줄 형식
+IPO: (앤트로픽 IPO 단계 변화·상장 시, 또는 "미국 개장 전" 슬롯) 위 IPO 줄 형식
 시그널: 바뀐 것만. 바뀐 게 없으면 "시그널 변동 없음"
 행동: 지금 할 일 한 줄
 https://claude.ai/artifact/DeYaAasm5hi1mAxVR9Sqeh

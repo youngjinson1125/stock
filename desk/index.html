@@ -741,6 +741,52 @@
     max-width:100%;
   }
 
+  /* ---------- ipo watch ---------- */
+  .ipo{ margin-top:16px; }
+  .ipo-head-r{ display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; }
+  .ipo-line{ margin:10px 0 0; font-size:14px; max-width:72ch; }
+  .steps{
+    list-style:none;
+    margin:12px 0 0;
+    padding:0;
+    display:grid;
+    grid-template-columns:repeat(6, minmax(0,1fr));
+    gap:6px;
+  }
+  .step{
+    border:1px solid var(--rule);
+    border-radius:3px;
+    padding:6px 8px;
+    font-size:12px;
+    color:var(--ink-3);
+    background:var(--surface-2);
+    min-width:0;
+  }
+  .step b{ display:block; font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:10.5px; font-weight:600; }
+  .step[data-s="done"]{ color:var(--ink); border-color:var(--rule-strong); background:var(--surface); }
+  .step[data-s="now"]{ color:var(--navy-ink); background:var(--navy); border-color:var(--navy); }
+  .facts{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+    gap:8px 16px;
+    margin-top:12px;
+  }
+  .fact-k{ font-size:11px; color:var(--ink-3); letter-spacing:0.05em; }
+  .fact-v{ font-size:14px; font-weight:600; }
+  .miles{ list-style:none; margin:12px 0 0; padding:0; border-top:1px solid var(--rule); }
+  .miles li{
+    display:grid;
+    grid-template-columns:58px 1fr;
+    gap:0 10px;
+    padding:8px 0;
+    border-bottom:1px solid var(--rule);
+    font-size:13.5px;
+  }
+  .miles li:last-child{ border-bottom:none; }
+  .miles .src{ margin-left:8px; }
+  .unconf{ font-size:11px; color:var(--ink-3); margin-left:6px; }
+  @media (max-width:560px){ .steps{ grid-template-columns:repeat(3, minmax(0,1fr)); } }
+
   /* ---------- fx ---------- */
   .fx-cause{ margin:12px 0 0; font-size:14px; color:var(--ink); max-width:72ch; }
   .fx-cause:empty{ display:none; }
@@ -853,6 +899,17 @@
       <ul class="events" id="events"></ul>
     </section>
   </div>
+
+  <section class="panel ipo" id="ipoSect" aria-labelledby="ipoHead" hidden>
+    <div class="panel-head">
+      <h2 id="ipoHead">IPO 워치 · 앤트로픽</h2>
+      <span class="ipo-head-r"><span class="state" id="ipoStage"></span><span class="panel-meta" id="ipoMeta"></span></span>
+    </div>
+    <p class="ipo-line" id="ipoLine"></p>
+    <ol class="steps" id="ipoSteps"></ol>
+    <div class="facts" id="ipoFacts"></div>
+    <ul class="miles" id="ipoMiles"></ul>
+  </section>
 
   <div class="rail" id="rail"></div>
 
@@ -1123,6 +1180,9 @@
       ["애보트 래버러토리스","ABT"],["CVS 헬스","CVS"],["유나이티드헬스 그룹","UNH"],
       ["크리스퍼 테라퓨틱스","CRSP"]
     ]},
+    { key:"IPO 대기", note:"추가", stocks:[
+      ["앤트로픽",""]
+    ]},
     { key:"나스닥 ②", note:"H열", stocks:[
       ["삼성전자","005930"],["KODEX 미국배당커버드콜액티브","441640"],
       ["KODEX 미국빅테크10(H)",""],["세레브라스 시스템즈","CBRS"],["엔비디아","NVDA"]
@@ -1156,6 +1216,7 @@
   var fx = null;
   var fxHist = [];
   var fxSet = null;
+  var ipo = null;
   var loaded = { news:false, picks:false, alerts:false, positions:false, today:false, events:false };
   var dbRef = null;
   var filter = { kind:"all", value:null };
@@ -2004,6 +2065,75 @@
     }).then(function(){ btn.disabled = false; });
   });
 
+  /* ---------- ipo watch ---------- */
+  var IPO_STEPS = [
+    ["rumor","보도"],["s1","증권신고서 공개"],["roadshow","로드쇼"],
+    ["range","공모가 범위"],["priced","공모가 확정"],["listed","상장"]
+  ];
+  function renderIpo(){
+    var sec = $("ipoSect");
+    sec.hidden = !ipo;
+    if (!ipo) return;
+    var stage = str(ipo.stage);
+    var idx = -1;
+    IPO_STEPS.forEach(function(s, i){ if (s[0] === stage) idx = i; });
+    var chip = $("ipoStage");
+    chip.textContent = idx >= 0 ? IPO_STEPS[idx][1] + " 단계" : "확인 중";
+    chip.setAttribute("data-s", stage === "listed" ? "take" : idx >= 1 ? "near" : "ok");
+    var when = fmtStamp(ipo.updatedAt);
+    $("ipoMeta").textContent = when ? when + " 확인" : "";
+    $("ipoLine").textContent = str(ipo.headline);
+
+    var ol = $("ipoSteps");
+    ol.textContent = "";
+    IPO_STEPS.forEach(function(s, i){
+      var li = el("li", "step");
+      li.setAttribute("data-s", i < idx ? "done" : i === idx ? "now" : "todo");
+      li.appendChild(el("b", null, String(i + 1)));
+      li.appendChild(document.createTextNode(s[1]));
+      ol.appendChild(li);
+    });
+
+    var facts = $("ipoFacts");
+    facts.textContent = "";
+    [["거래소 · 티커", [str(ipo.exchange), str(ipo.ticker)].filter(Boolean).join(" · ")],
+     ["예상 상장일", str(ipo.expectedDate)],
+     ["공모가", str(ipo.ipoPrice) || str(ipo.priceRange)],
+     ["예상 기업가치", str(ipo.valuation)],
+     ["공모 규모", str(ipo.raise)],
+     ["첫 거래일 종가", str(ipo.firstDayClose)]
+    ].forEach(function(f){
+      if (!f[1]) return;
+      var d = el("div");
+      d.appendChild(el("div", "fact-k", f[0]));
+      d.appendChild(el("div", "fact-v", f[1]));
+      facts.appendChild(d);
+    });
+
+    var ul = $("ipoMiles");
+    ul.textContent = "";
+    var ms = Array.isArray(ipo.milestones) ? ipo.milestones.slice() : [];
+    ms.sort(function(a,b){ return str(b && b.date).localeCompare(str(a && a.date)); });
+    ms.forEach(function(m){
+      if (!m || !str(m.text)) return;
+      var li = el("li");
+      li.appendChild(el("span", "mono ev-date", fmtDate(m.date)));
+      var t = el("span", null, str(m.text));
+      if (m.confirmed !== true) t.appendChild(el("span", "unconf", "보도 · 미확정"));
+      var src = m.src && typeof m.src === "object" ? m.src : {};
+      var url = safeHttps(src.url);
+      if (url) {
+        var a = el("a", "src", str(src.name) || "출처");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        t.appendChild(a);
+      }
+      li.appendChild(t);
+      ul.appendChild(li);
+    });
+  }
+
   /* ---------- fx ---------- */
   var FX_KEYS = [
     { key:"usdkrw", label:"원/달러", unit:"원", dec:1, hint:"내리면 원화 강세 · 미국 주식 사기 유리" },
@@ -2236,7 +2366,7 @@
 
   function renderFeedAll(){ renderFilters(); renderNote(); renderFeed(); }
   function renderAll(){
-    renderStamp(); renderTodo(); renderEvents(); renderRail(); renderFx(); renderHoldings(); renderTrack();
+    renderStamp(); renderTodo(); renderEvents(); renderIpo(); renderRail(); renderFx(); renderHoldings(); renderTrack();
     renderSignals(); renderReview(); renderLog(); renderFeedAll(); renderBoard();
   }
 
@@ -2324,6 +2454,11 @@
       db.collection("fxHistory").orderBy("date", "desc").limit(60).onSnapshot(function(snap){
         fxHist = snap.docs.map(function(d){ var v = d.data() || {}; v.id = d.id; return v; });
         renderFx();
+      }, function(){});
+
+      db.doc("ipo/anthropic").onSnapshot(function(snap){
+        ipo = (snap.exists && snap.data()) || null;
+        renderIpo();
       }, function(){});
 
       db.doc("fxAlerts/settings").onSnapshot(function(snap){
