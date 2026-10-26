@@ -741,6 +741,26 @@
     max-width:100%;
   }
 
+  /* ---------- fx ---------- */
+  .fx-cause{ margin:12px 0 0; font-size:14px; color:var(--ink); max-width:72ch; }
+  .fx-cause:empty{ display:none; }
+  .fx-tags{ display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+  .fx-tags:empty{ display:none; }
+  .fx-tag{
+    font-size:11.5px;
+    color:var(--ink-2);
+    background:var(--surface);
+    border:1px solid var(--rule-strong);
+    border-radius:999px;
+    padding:1px 9px;
+  }
+  .fx-tiles .tile{ display:flex; flex-direction:column; gap:2px; }
+  .spark{ display:block; width:100%; max-width:160px; height:30px; margin-top:6px; }
+  .spark polyline{ fill:none; stroke:var(--ink-3); stroke-width:1.5; stroke-linejoin:round; stroke-linecap:round; }
+  .spark circle{ fill:var(--ink); }
+  .fx-hit{ margin-top:6px; }
+  .form-sub{ display:block; font-weight:400; font-size:12px; color:var(--ink-3); margin-top:2px; }
+
   /* ---------- review ---------- */
   .tiles{
     display:grid;
@@ -835,6 +855,30 @@
   </div>
 
   <div class="rail" id="rail"></div>
+
+  <section class="sect" id="fxSect" aria-labelledby="fxHead">
+    <div class="sect-head">
+      <h2 id="fxHead">환율</h2>
+      <span class="sect-meta" id="fxMeta"></span>
+    </div>
+    <p class="fx-cause" id="fxCause"></p>
+    <div class="fx-tags" id="fxTags"></div>
+    <div class="tiles fx-tiles" id="fxTiles"></div>
+    <form class="form" id="fxForm" autocomplete="off">
+      <p class="form-title">환율 알림 조건 <span class="form-sub">비워 두면 그 조건은 쓰지 않습니다. 조건에 닿으면 원인과 함께 [중요] 푸시가 옵니다(조건마다 하루 한 번).</span></p>
+      <div class="fields">
+        <div class="field"><label for="fxUsdBelow">원/달러 이하로 내려가면</label><input id="fxUsdBelow" class="num" inputmode="decimal" placeholder="예: 1310"></div>
+        <div class="field"><label for="fxUsdAbove">원/달러 이상으로 오르면</label><input id="fxUsdAbove" class="num" inputmode="decimal" placeholder="예: 1360"></div>
+        <div class="field"><label for="fxJpyBelow">원/100엔 이하로 내려가면</label><input id="fxJpyBelow" class="num" inputmode="decimal" placeholder="예: 830"></div>
+        <div class="field"><label for="fxJpyAbove">원/100엔 이상으로 오르면</label><input id="fxJpyAbove" class="num" inputmode="decimal" placeholder="예: 870"></div>
+        <div class="field"><label for="fxMove">하루 변동이 이 %를 넘으면</label><input id="fxMove" class="num" inputmode="decimal" placeholder="예: 0.5"></div>
+      </div>
+      <div class="form-foot">
+        <button class="mini solid" type="submit" id="fxSave">조건 저장</button>
+        <span class="form-msg" id="fxMsg" role="status"></span>
+      </div>
+    </form>
+  </section>
 
   <section class="sect" id="holdSect" aria-labelledby="holdHead">
     <div class="sect-head">
@@ -1110,6 +1154,8 @@
   var today = null;
   var checks = null;
   var fx = null;
+  var fxHist = [];
+  var fxSet = null;
   var loaded = { news:false, picks:false, alerts:false, positions:false, today:false, events:false };
   var dbRef = null;
   var filter = { kind:"all", value:null };
@@ -1958,6 +2004,132 @@
     }).then(function(){ btn.disabled = false; });
   });
 
+  /* ---------- fx ---------- */
+  var FX_KEYS = [
+    { key:"usdkrw", label:"원/달러", unit:"원", dec:1, hint:"내리면 원화 강세 · 미국 주식 사기 유리" },
+    { key:"jpykrw", label:"원/100엔", unit:"원", dec:2, hint:"내리면 엔화 대비 원화 강세" },
+    { key:"usdjpy", label:"엔/달러", unit:"엔", dec:2, hint:"오르면 엔화 약세" },
+    { key:"dxy",    label:"달러 인덱스", unit:"", dec:2, hint:"오르면 달러 전반 강세" }
+  ];
+  function fmtFx(v, d){ return v == null ? "—" : v.toLocaleString("en-US", { minimumFractionDigits:d, maximumFractionDigits:d }); }
+  function signed(v, d){ return (v > 0 ? "+" : v < 0 ? "−" : "±") + Math.abs(v).toFixed(d); }
+  function spark(values){
+    var pts = values.filter(function(v){ return v != null; });
+    if (pts.length < 2) return null;
+    var w = 160, h = 30, pad = 3;
+    var min = Math.min.apply(null, pts), max = Math.max.apply(null, pts);
+    var span = max - min || 1;
+    var step = (w - pad * 2) / (pts.length - 1);
+    var coords = pts.map(function(v, i){
+      return [pad + i * step, h - pad - (v - min) / span * (h - pad * 2)];
+    });
+    var NS = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("class", "spark");
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    svg.setAttribute("preserveAspectRatio", "none");
+    svg.setAttribute("aria-hidden", "true");
+    var pl = document.createElementNS(NS, "polyline");
+    pl.setAttribute("points", coords.map(function(c){ return c[0].toFixed(1) + "," + c[1].toFixed(1); }).join(" "));
+    svg.appendChild(pl);
+    var last = coords[coords.length - 1];
+    var dot = document.createElementNS(NS, "circle");
+    dot.setAttribute("cx", last[0].toFixed(1));
+    dot.setAttribute("cy", last[1].toFixed(1));
+    dot.setAttribute("r", "2.5");
+    svg.appendChild(dot);
+    return svg;
+  }
+  function fxHits(){
+    var out = Object.create(null);
+    if (!fx || !fxSet) return out;
+    var u = num(fx.usdkrw), j = num(fx.jpykrw), mv = num(fxSet.dailyMovePct);
+    if (u != null && num(fxSet.usdkrwBelow) != null && u <= fxSet.usdkrwBelow) out.usdkrw = fxSet.usdkrwBelow.toLocaleString("ko-KR") + "원 이하";
+    if (u != null && num(fxSet.usdkrwAbove) != null && u >= fxSet.usdkrwAbove) out.usdkrw = fxSet.usdkrwAbove.toLocaleString("ko-KR") + "원 이상";
+    if (j != null && num(fxSet.jpykrwBelow) != null && j <= fxSet.jpykrwBelow) out.jpykrw = fxSet.jpykrwBelow + "원 이하";
+    if (j != null && num(fxSet.jpykrwAbove) != null && j >= fxSet.jpykrwAbove) out.jpykrw = fxSet.jpykrwAbove + "원 이상";
+    if (mv != null) {
+      ["usdkrw","jpykrw"].forEach(function(k){
+        var p = num(fx[k + "Pct"]);
+        if (p != null && Math.abs(p) >= mv && !out[k]) out[k] = "하루 ±" + mv + "% 초과";
+      });
+    }
+    return out;
+  }
+  function renderFx(){
+    var box = $("fxTiles");
+    box.textContent = "";
+    var hist = fxHist.slice().sort(function(a,b){ return str(a.date).localeCompare(str(b.date)); }).slice(-30);
+    var hits = fxHits();
+    FX_KEYS.forEach(function(c){
+      var v = fx ? num(fx[c.key]) : null;
+      var chg = fx ? num(fx[c.key + "Chg"]) : null;
+      var p = fx ? num(fx[c.key + "Pct"]) : null;
+      var t = el("div", "tile");
+      t.appendChild(el("div", "tile-k", c.label));
+      t.appendChild(el("div", "tile-v mono", v == null ? "—" : fmtFx(v, c.dec) + (c.unit ? c.unit : "")));
+      var sub = el("div", "tile-s");
+      if (chg != null || p != null) {
+        var dir = (p != null ? p : chg) > 0 ? "up" : (p != null ? p : chg) < 0 ? "down" : "flat";
+        sub.appendChild(el("b", "mono " + dir, [chg != null ? signed(chg, c.dec) : "", p != null ? "(" + signed(p, 2) + "%)" : ""].filter(Boolean).join(" ")));
+        sub.appendChild(document.createTextNode(" · "));
+      }
+      sub.appendChild(document.createTextNode(c.hint));
+      t.appendChild(sub);
+      var sp = spark(hist.map(function(h){ return num(h[c.key]); }));
+      if (sp) t.appendChild(sp);
+      if (hits[c.key]) {
+        var hc = el("div", "fx-hit");
+        var chip = el("span", "state", "알림 조건: " + hits[c.key]);
+        chip.setAttribute("data-s", "take");
+        hc.appendChild(chip);
+        t.appendChild(hc);
+      }
+      box.appendChild(t);
+    });
+    $("fxCause").textContent = fx ? str(fx.cause) : "";
+    var tags = $("fxTags");
+    tags.textContent = "";
+    if (fx) arr(fx.drivers).forEach(function(d){ tags.appendChild(el("span", "fx-tag", d)); });
+    var as = fx ? (str(fx.asOf) || fmtStamp(fx.updatedAt) || "") : "";
+    $("fxMeta").textContent = as ? as + " 기준" + (hist.length > 1 ? " · 선은 최근 " + hist.length + "일" : "") : "";
+    fillFxForm();
+  }
+  var fxFormDirty = false;
+  ["fxUsdBelow","fxUsdAbove","fxJpyBelow","fxJpyAbove","fxMove"].forEach(function(id){
+    $(id).addEventListener("input", function(){ fxFormDirty = true; });
+  });
+  function fillFxForm(){
+    if (fxFormDirty || !fxSet) return;
+    [["fxUsdBelow","usdkrwBelow"],["fxUsdAbove","usdkrwAbove"],["fxJpyBelow","jpykrwBelow"],["fxJpyAbove","jpykrwAbove"],["fxMove","dailyMovePct"]].forEach(function(p){
+      var v = num(fxSet[p[1]]);
+      $(p[0]).value = v == null ? "" : String(v);
+    });
+  }
+  $("fxForm").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var msg = $("fxMsg");
+    if (!dbRef) { msg.textContent = "저장소에 연결되지 않아 저장할 수 없습니다."; return; }
+    var data = {
+      usdkrwBelow:parseNum($("fxUsdBelow").value),
+      usdkrwAbove:parseNum($("fxUsdAbove").value),
+      jpykrwBelow:parseNum($("fxJpyBelow").value),
+      jpykrwAbove:parseNum($("fxJpyAbove").value),
+      dailyMovePct:parseNum($("fxMove").value),
+      updatedAt:new Date().toISOString()
+    };
+    if (data.usdkrwBelow != null && data.usdkrwAbove != null && data.usdkrwBelow >= data.usdkrwAbove) { msg.textContent = "원/달러 '이하' 값은 '이상' 값보다 작아야 합니다."; return; }
+    if (data.jpykrwBelow != null && data.jpykrwAbove != null && data.jpykrwBelow >= data.jpykrwAbove) { msg.textContent = "원/100엔 '이하' 값은 '이상' 값보다 작아야 합니다."; return; }
+    var btn = $("fxSave");
+    btn.disabled = true;
+    dbRef.doc("fxAlerts/settings").set(data).then(function(){
+      fxFormDirty = false;
+      msg.textContent = "저장했습니다. 다음 알림부터 이 조건으로 확인합니다.";
+    }).catch(function(){
+      msg.textContent = "저장하지 못했습니다. 이 페이지의 편집 권한이 있는지 확인해 주세요.";
+    }).then(function(){ btn.disabled = false; });
+  });
+
   /* ---------- review ---------- */
   function tile(box, k, v, s, cls){
     var t = el("div", "tile");
@@ -2064,7 +2236,7 @@
 
   function renderFeedAll(){ renderFilters(); renderNote(); renderFeed(); }
   function renderAll(){
-    renderStamp(); renderTodo(); renderEvents(); renderRail(); renderHoldings(); renderTrack();
+    renderStamp(); renderTodo(); renderEvents(); renderRail(); renderFx(); renderHoldings(); renderTrack();
     renderSignals(); renderReview(); renderLog(); renderFeedAll(); renderBoard();
   }
 
@@ -2146,7 +2318,17 @@
 
       db.doc("meta/fx").onSnapshot(function(snap){
         fx = (snap.exists && snap.data()) || null;
-        renderHoldings(); renderReview();
+        renderFx(); renderHoldings(); renderReview();
+      }, function(){});
+
+      db.collection("fxHistory").orderBy("date", "desc").limit(60).onSnapshot(function(snap){
+        fxHist = snap.docs.map(function(d){ var v = d.data() || {}; v.id = d.id; return v; });
+        renderFx();
+      }, function(){});
+
+      db.doc("fxAlerts/settings").onSnapshot(function(snap){
+        fxSet = (snap.exists && snap.data()) || null;
+        renderFx();
       }, function(){});
 
       var checksUnsub = null, checksDate = "";
